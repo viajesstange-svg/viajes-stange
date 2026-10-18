@@ -51,10 +51,22 @@ h1 { margin: 0; font-size: 28px; line-height: 1.15; }
       <span id="texto-btn">Preparando…</span>
     </button>
 
+    <!-- Instalando: Chrome arma la app en segundo plano (puede tardar hasta 30 segundos) -->
+    <div id="instalando" hidden>
+      <p class="listo" style="color:var(--azul)">Instalando… espera unos segundos</p>
+      <p class="nota">No cierres esta pantalla hasta que diga que terminó.</p>
+    </div>
+
     <!-- Ya instalada -->
     <div id="ya-instalada" hidden>
-      <p class="listo">✓ La app ya está instalada</p>
-      <p class="nota">Búscala en tu pantalla de inicio con el nombre <b>Viajes Stange</b>.</p>
+      <p class="listo">✓ La app está instalada</p>
+      <div class="pasos">
+        <h2>¿No ves el ícono?</h2>
+        <ol>
+          <li>Desliza hacia arriba en la pantalla principal y busca <b>Viajes Stange</b> entre tus aplicaciones (o escríbelo en el buscador del celular).</li>
+          <li>En <b>Xiaomi / Redmi / POCO</b>: Ajustes → Aplicaciones → <b>Chrome</b> → Otros permisos → <b>Accesos directos en la pantalla de inicio</b> → Permitir, y vuelve a instalar.</li>
+        </ol>
+      </div>
       <a class="btn secundario" href="../">Abrir la app</a>
     </div>
 
@@ -89,8 +101,15 @@ if (esIOS) location.replace("../");
 let aviso = null;
 function mostrarListo() {
   $("instalar").hidden = true;
-  ["pasos-chrome", "pasos-samsung", "pasos-otro", "nota"].forEach(id => $(id).hidden = true);
+  ["pasos-chrome", "pasos-samsung", "pasos-otro", "nota", "instalando"].forEach(id => $(id).hidden = true);
   $("ya-instalada").hidden = false;
+}
+function mostrarInstalando() {
+  $("instalar").hidden = true;
+  ["pasos-chrome", "pasos-samsung", "pasos-otro", "nota"].forEach(id => $(id).hidden = true);
+  $("instalando").hidden = false;
+  // Si Chrome no confirma en 30 segundos, igual se muestra dónde buscarla
+  setTimeout(() => { if (!$("instalando").hidden) mostrarListo(); }, 30000);
 }
 if (enApp) mostrarListo();
 // Chrome avisa si la app ya está instalada en este celular (no vuelve a ofrecer instalarla)
@@ -112,7 +131,8 @@ $("instalar").addEventListener("click", async () => {
   aviso.prompt();
   const r = await aviso.userChoice.catch(() => ({}));
   aviso = null;
-  if (r.outcome === "accepted") mostrarListo();
+  // "Aceptar" solo inicia la instalación; queda lista cuando Chrome avisa con "appinstalled"
+  if (r.outcome === "accepted") mostrarInstalando();
   else { $("instalar").disabled = true; $("texto-btn").textContent = "Instalar app"; mostrarPasos(); }
 });
 
