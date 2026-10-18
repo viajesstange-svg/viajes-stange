@@ -5,8 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a3164">
 <title>Ingreso de Viajes</title>
-
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap">
+<!-- Instalar como app en el celular (ícono propio, pantalla completa, sin barra del navegador) -->
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Viajes Stange">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- La fuente se carga sin frenar la pantalla: si la señal es lenta, la app se ve igual con la letra del sistema -->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" media="print" onload="this.media='all'">
 <style>
 [hidden] { display: none !important; }
 html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -1013,6 +1022,9 @@ $("tocar").addEventListener("click", () => {
 
 // Al abrir, intenta saludar; si el celular bloquea el sonido, se queda la capa "Toca la pantalla"
 hablar("p0");
+
+// Copia de la app en el celular para que abra rápido y sin señal
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
 
 </body>
