@@ -234,6 +234,7 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
 .hoy-lista .dest { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .hoy-lista li.mio { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .hoy-lista .tuyo { margin-left: auto; flex: none; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+.elegir-base { display: flex; flex-direction: column; gap: 14px; }
 .hoy-vacio { color: var(--muted); text-align: center; padding: 24px 8px; border: 1px dashed var(--line); border-radius: 12px; }
 
 .alerta { background: var(--err-soft); color: var(--err); border-radius: 12px; padding: 12px 14px; font-weight: 500; font-size: 15px; }
@@ -387,7 +388,7 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
         <b>Toca la pantalla para comenzar</b>
       </button>
       <button class="btn" type="button" id="comenzar"><span>Comenzar</span><svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
-      <button class="btn btn-sec" type="button" id="hoy-inicio" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Viajes de hoy · <span id="hoy-inicio-base"></span></span></button>
+      <button class="btn btn-sec" type="button" id="hoy-inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Viajes de hoy<span id="hoy-inicio-base"></span></span></button>
       <button class="btn btn-sec" type="button" id="instalar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Instalar la app en mi celular</span></button>
       <p class="ayuda-instalar" id="ayuda-ios" hidden>Para instalarla en iPhone: toca <b>Compartir</b> <span aria-hidden="true">⬆️</span> y luego <b>"Agregar a inicio"</b>.</p>
     </div>
@@ -563,8 +564,12 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
     </header>
     <div class="body">
       <div class="guia atento"><div class="ava"></div><div class="bocadillo" id="b-p5"></div></div>
-      <div class="hoy-cab"><span class="base-chip" id="hoy-base"></span><span class="fecha" id="hoy-fecha"></span></div>
-      <div class="hoy-total"><b id="hoy-n">0</b><span id="hoy-n-txt">viajes registrados hoy</span></div>
+      <div class="elegir-base" id="elegir-base" hidden>
+        <p class="label">¿De qué base quieres ver los viajes?</p>
+        <div class="acciones" id="bases-opciones"></div>
+      </div>
+      <div class="hoy-cab" id="hoy-cab"><span class="base-chip" id="hoy-base"></span><span class="fecha" id="hoy-fecha"></span></div>
+      <div class="hoy-total" id="hoy-total"><b id="hoy-n">0</b><span id="hoy-n-txt">viajes registrados hoy</span></div>
       <ol class="hoy-lista" id="hoy-lista"></ol>
       <p class="proto" id="hoy-act"></p>
     </div>
@@ -798,7 +803,7 @@ const MENSAJES = {
   p2: atras => atras ? ["Corrige lo que necesites y presiona Siguiente.", "corregir"] : ["Ingresa el número de documento de transporte.", "documento"],
   p3: () => ["Revisa que todo esté correcto. Si algo está mal, toca Corregir datos.", "revisa"],
   p4: () => ["¡Gracias! Maneja con cuidado y que llegues bien.", "gracias"],
-  p5: () => [`Estos son los viajes de hoy de la base ${baseHoy()}.`, "hoy"]
+  p5: () => baseHoy() ? [`Estos son los viajes de hoy de la base ${baseHoy()}.`, "hoy"] : ["¿De qué base quieres ver los viajes de hoy?", "hoy-base"]
 };
 function hablar(id, atras) {
   const el = $("b-" + id);
@@ -1180,7 +1185,8 @@ $("tocar").addEventListener("click", () => {
 hablar("p0");
 
 // ---------- Pantalla 5: viajes de hoy de la base ----------
-// La base sale del último equipo que se ingresó en este celular
+// La base sale del último equipo que se ingresó en este celular; si todavía no hay ninguno, el conductor la elige
+// una sola vez (no hay opción para cambiarla a mano)
 let miViaje = "", baseGuardada = "", origenHoy = "p0";
 try { baseGuardada = localStorage.getItem("base-viajes-stange") || ""; } catch (e) {}
 function guardarBase(b) {
@@ -1189,12 +1195,34 @@ function guardarBase(b) {
   mostrarBotonInicio();
 }
 function mostrarBotonInicio() {
-  $("hoy-inicio").hidden = !baseGuardada;
-  $("hoy-inicio-base").textContent = baseGuardada;
+  $("hoy-inicio-base").textContent = baseGuardada ? " · " + baseGuardada : "";
 }
 mostrarBotonInicio();
 const baseHoy = () => baseGuardada;
+// Bases de la flota (hoja Equipos); si aún no se cargó la planilla, las tres conocidas
+function basesFlota() {
+  const lista = [...new Set(Object.values(EQUIPOS).map(e => e.base).filter(Boolean))];
+  return lista.length ? lista : ["Puerto Montt", "Chacabuco", "Punta Arenas"];
+}
+function verElegirBase(si) {
+  $("elegir-base").hidden = !si;
+  ["hoy-cab", "hoy-total", "hoy-lista", "hoy-act"].forEach(id => $(id).hidden = si);
+}
+function pedirBase() {
+  $("bases-opciones").innerHTML = basesFlota().map(b => `<button type="button" class="btn btn-sec" data-base="${esc(b)}">${esc(b)}</button>`).join("");
+  verElegirBase(true);
+  decir("b-p5", "¿De qué base quieres ver los viajes de hoy?", "hoy-base");
+}
+$("bases-opciones").addEventListener("click", e => {
+  const b = e.target.closest("[data-base]"); if (!b) return;
+  guardarBase(b.dataset.base);
+  verElegirBase(false);
+  decir("b-p5", `Estos son los viajes de hoy de la base ${baseHoy()}.`, "hoy");
+  cargarHoy();
+});
 async function cargarHoy() {
+  if (!baseHoy()) { pedirBase(); return; }
+  verElegirBase(false);
   $("hoy-base").textContent = "Base " + baseHoy();
   $("hoy-fecha").textContent = new Date().toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" });
   $("hoy-act").textContent = "Actualizando…";
