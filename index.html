@@ -204,6 +204,38 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
 .seg[data-p="B93"], .chip[data-p="B93"][aria-checked="true"] { background: var(--p-b93); }
 .seg[data-p="B97"], .chip[data-p="B97"][aria-checked="true"] { background: var(--p-b97); }
 
+/* Tracto (lista desplegable) y km del tablero */
+.input select { width: 100%; height: 58px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--field); padding: 0 84px 0 16px; font-size: 19px; font-weight: 500; appearance: none; -webkit-appearance: none; outline: none; cursor: pointer; transition: border-color .2s, box-shadow .2s; }
+.input select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent); }
+.input.valido select { border-color: var(--ok); }
+.input.error select { border-color: var(--err); background: var(--err-soft); }
+.input .flechita { position: absolute; right: 46px; width: 22px; height: 22px; color: var(--accent); pointer-events: none; }
+.odo { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 12px; background: var(--field); border: 1px solid var(--line); font-size: 14px; color: var(--muted); animation: subir .35s cubic-bezier(.2,.8,.2,1) both; }
+.odo b { color: var(--fg); display: block; }
+.odo .dig { display: flex; gap: 2px; margin-left: auto; flex: none; }
+.odo .dig i { font-style: normal; width: 19px; height: 30px; display: grid; place-items: center; background: var(--band); color: #fff; border-radius: 4px; font-family: var(--font-display); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.odo .dig i.sep { width: 5px; background: transparent; color: var(--muted); }
+.km-dif { font-size: 14px; font-weight: 600; color: var(--ok); }
+.km-dif:empty { display: none; }
+
+/* Viajes de hoy */
+.hoy-cab { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.base-chip { background: var(--accent); color: var(--on-accent); font-family: var(--font-display); font-weight: 700; font-size: 18px; padding: 6px 14px; border-radius: 999px; }
+.hoy-cab .fecha { color: var(--muted); font-size: 14px; }
+.hoy-total { display: flex; align-items: baseline; gap: 10px; }
+.hoy-total b { font-family: var(--font-display); font-size: 44px; color: var(--label); line-height: 1; font-variant-numeric: tabular-nums; }
+.hoy-total span { color: var(--muted); }
+.hoy-lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.hoy-lista li { display: grid; grid-template-columns: 62px 1fr; gap: 2px 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--field); animation: subir .35s cubic-bezier(.2,.8,.2,1) both; }
+.hoy-lista .hora { grid-row: span 2; align-self: center; font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.hoy-lista .l1 { display: flex; gap: 8px; align-items: baseline; min-width: 0; }
+.hoy-lista .eq { font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.hoy-lista .cond { color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.hoy-lista .dest { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.hoy-lista li.mio { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.hoy-lista .tuyo { margin-left: auto; flex: none; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+.hoy-vacio { color: var(--muted); text-align: center; padding: 24px 8px; border: 1px dashed var(--line); border-radius: 12px; }
+
 .alerta { background: var(--err-soft); color: var(--err); border-radius: 12px; padding: 12px 14px; font-weight: 500; font-size: 15px; }
 
 /* Pantalla 3 */
@@ -355,6 +387,7 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
         <b>Toca la pantalla para comenzar</b>
       </button>
       <button class="btn" type="button" id="comenzar"><span>Comenzar</span><svg class="flecha" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
+      <button class="btn btn-sec" type="button" id="hoy-inicio" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Viajes de hoy · <span id="hoy-inicio-base"></span></span></button>
       <button class="btn btn-sec" type="button" id="instalar" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg><span>Instalar la app en mi celular</span></button>
       <p class="ayuda-instalar" id="ayuda-ios" hidden>Para instalarla en iPhone: toca <b>Compartir</b> <span aria-hidden="true">⬆️</span> y luego <b>"Agregar a inicio"</b>.</p>
     </div>
@@ -424,15 +457,32 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
         <div class="msg" id="m-dest" aria-live="polite"></div>
       </div>
 
-      <div class="field estanque">
-        <div class="label">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5 21.5 7v10L12 22.5 2.5 17V7zm0 2.3L5.3 7.6 12 11.4l6.7-3.8zM4.5 9.3v6.5l6.5 3.7V13zm15 0L13 13v6.5l6.5-3.7z"/></svg>
-          Carga por compartimento
+      <div class="field">
+        <label class="label" for="tracto">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5h9v10H3zM13 8h4.2a2 2 0 0 1 1.7 1l2.6 4V17H13z"/><circle cx="7" cy="18" r="2.4"/><circle cx="17.5" cy="18" r="2.4"/></svg>
+          Tracto
+        </label>
+        <div class="input" id="w-tracto">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5h9v10H3zM13 8h4.2a2 2 0 0 1 1.7 1l2.6 4V17H13z"/><circle cx="7" cy="18" r="2.4"/><circle cx="17.5" cy="18" r="2.4"/></svg>
+          <input id="tracto" inputmode="numeric" autocomplete="off" placeholder="N° tracto" aria-label="Número de tracto" aria-describedby="m-tracto" maxlength="4">
+          <svg class="estado" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <div class="tanque-wrap"><div class="tanque" id="tanque"></div><div class="ruedas"><i></i><i></i><i></i></div></div>
-        <div class="carga-total"><span id="carga-txt"></span><span id="carga-cap"></span></div>
-        <div class="comps" id="comps"></div>
-        <div class="msg" id="m-comps" aria-live="polite"></div>
+        <div class="msg" id="m-tracto" aria-live="polite"></div>
+        <div id="tracto-ficha"></div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="km">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3a10 10 0 0 0-8.7 15h17.4A10 10 0 0 0 12 3zm0 2.2a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM6.3 8a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm11.4 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-1.4 2.3-3.1 4.3a1.8 1.8 0 1 1-1.4-1.2z"/></svg>
+          Km actual del tablero
+        </label>
+        <div class="input sin-icono" id="w-km">
+          <input id="km" inputmode="numeric" autocomplete="off" placeholder="Ingresa el km exacto" maxlength="9" aria-describedby="m-km">
+          <svg class="estado" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div id="ultimo-km"></div>
+        <div class="km-dif" id="km-dif"></div>
+        <div class="msg" id="m-km" aria-live="polite"></div>
       </div>
 
       <div class="alerta" id="alerta" hidden></div>
@@ -497,7 +547,26 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
       <p class="buen-viaje">¡Buen viaje!</p>
       <div class="guia final"><div class="ava"></div><div class="bocadillo" id="b-p4"></div></div>
       <p id="hora-envio" class="hora-envio"></p>
-      <button class="btn cerrar-tarde" type="button" id="cerrar"><span>Cerrar</span></button>
+      <div class="acciones cerrar-tarde" style="width:100%">
+        <button class="btn btn-sec" type="button" id="hoy-final"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Ver viajes de hoy</span></button>
+        <button class="btn" type="button" id="cerrar"><span>Cerrar</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 5: viajes de hoy de la base -->
+  <section class="screen" id="p5" hidden>
+    <header class="band bar">
+      <button class="back" type="button" id="volver5" aria-label="Volver"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <h1>Viajes de hoy</h1>
+      <button class="back" type="button" id="refrescar5" aria-label="Actualizar"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg></button>
+    </header>
+    <div class="body">
+      <div class="guia atento"><div class="ava"></div><div class="bocadillo" id="b-p5"></div></div>
+      <div class="hoy-cab"><span class="base-chip" id="hoy-base"></span><span class="fecha" id="hoy-fecha"></span></div>
+      <div class="hoy-total"><b id="hoy-n">0</b><span id="hoy-n-txt">viajes registrados hoy</span></div>
+      <ol class="hoy-lista" id="hoy-lista"></ol>
+      <p class="proto" id="hoy-act"></p>
     </div>
   </section>
 </div>
@@ -516,10 +585,12 @@ const FLOTA = {
   "32":  [293, 292, 616, 8983, 8991, 4192, 4193, 411, 4326, 4330, 8976, 8998, 8405, 8982, 8675, 4446, 8743, 8888, 8041, 8162, 8902, 8279, 4037, 8007, 8620, 8133],
   "15":  [4061, 8846, 8876, 8887, 8975, 4358, 4570, 4571]
 };
+// Lista inicial: se reemplaza con las hojas "Equipos" y "Tractos" de la planilla al abrir la app
 const EQUIPOS = {};
-for (const [k, lista] of Object.entries(FLOTA)) lista.forEach(n => EQUIPOS[String(n)] = CONFIG[k]);
+for (const [k, lista] of Object.entries(FLOTA)) lista.forEach(n => EQUIPOS[String(n)] = { ...CONFIG[k], base: "", camion: CONFIG[k].cap <= 15 });
+// Tractos con su base y último km registrado: { "5101": { base, km } }
+const TRACTOS = {};
 
-// Conductores de PRUEBA (los reales se cargarán desde la hoja "Conductores")
 // Planilla de Google que recibe los viajes (Apps Script de viajes.stange@gmail.com)
 const API = "https://script.google.com/macros/s/AKfycbyOorimza3ftLqBpM69TTmSP5PGK-xcDe8Q8n3QfG-2mth0l0oEeUQtDx70427o4Ueo/exec";
 // El cuerpo va como texto plano para que el navegador no exija permisos extra (CORS) a Google
@@ -528,6 +599,7 @@ async function llamarApi(datos) {
   if (!r.ok) throw new Error("HTTP " + r.status);
   return r.json();
 }
+const hhmm = d => d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
 const PRODUCTOS = [
   { id: "PD", nombre: "Petróleo" }, { id: "K", nombre: "Kerosene" }, { id: "KA", nombre: "Kerosene aviación" },
@@ -563,11 +635,12 @@ function sacudir(el) { el.classList.remove("shake"); void el.offsetWidth; el.cla
 function marcar(wrap, estado) { wrap.classList.toggle("valido", estado === "ok"); wrap.classList.toggle("error", estado === "err"); }
 
 // ---------- Estado ----------
-const S = { rut: "", conductor: "", equipo: "", conf: null, carga: [], destino: "" };
+const S = { rut: "", conductor: "", equipo: "", conf: null, destino: "", tracto: "", km: 0 };
+const fmtKm = n => n.toLocaleString("es-CL");
 
 // ---------- Navegación ----------
 function mostrar(id, atras) {
-  ["p0", "p1", "p2", "p3", "p4"].forEach(p => {
+  ["p0", "p1", "p2", "p3", "p4", "p5"].forEach(p => {
     const el = $(p);
     if (p === id) { el.hidden = false; el.classList.toggle("atras", !!atras); el.style.animation = "none"; void el.offsetWidth; el.style.animation = ""; }
     else el.hidden = true;
@@ -724,7 +797,8 @@ const MENSAJES = {
   p1: () => ["Ingresa tu RUT y el número de tu equipo.", "datos"],
   p2: atras => atras ? ["Corrige lo que necesites y presiona Siguiente.", "corregir"] : ["Ingresa el número de documento de transporte.", "documento"],
   p3: () => ["Revisa que todo esté correcto. Si algo está mal, toca Corregir datos.", "revisa"],
-  p4: () => ["¡Gracias! Maneja con cuidado y que llegues bien.", "gracias"]
+  p4: () => ["¡Gracias! Maneja con cuidado y que llegues bien.", "gracias"],
+  p5: () => [`Estos son los viajes de hoy de la base ${baseHoy()}.`, "hoy"]
 };
 function hablar(id, atras) {
   const el = $("b-" + id);
@@ -738,10 +812,10 @@ function hablar(id, atras) {
 function guiaP1() {
   if (S.rut && S.conf) decir("b-p1", "¡Todo listo! Presiona Siguiente.", "datos-listo");
   else if (S.rut) decir("b-p1", `¡Hola, ${S.conductor}! Ahora escribe tu N° de equipo.`, "rut-ok");
-  else if (S.conf) decir("b-p1", `Equipo ${S.equipo}: ${S.conf.cap} M3 con ${S.conf.comps.length} compartimentos. Falta tu RUT.`, "equipo-ok");
+  else if (S.conf) decir("b-p1", `Equipo ${S.equipo}: ${S.conf.cap} M3${S.conf.base ? ", base " + S.conf.base : ""}. Falta tu RUT.`, "equipo-ok");
 }
 function guiaP2(aviso, clip) {
-  const listo = docIn.value.length === 10 && S.destino && S.carga.every(p => p) && !S.carga.every(p => p === "VAC");
+  const listo = docIn.value.length === 10 && S.destino && S.tracto && S.km;
   if (listo) decir("b-p2", "¡Todo completo! Presiona Siguiente para revisar.", "viaje-listo");
   else if (aviso) decir("b-p2", aviso, clip);
 }
@@ -794,8 +868,7 @@ function revisarEquipo(final) {
   let msg = "";
   if (conf) {
     S.equipo = v; S.conf = conf;
-    const mini = conf.comps.map(l => `<span style="flex:${l}"></span>`).join("");
-    $("equipo-ficha").innerHTML = `<div class="ficha"><span class="num">${v}</span><div class="det"><b>${conf.cap} M3</b><span>${conf.comps.length} compartimentos</span></div><div class="mini-tank" aria-hidden="true">${mini}</div></div>`;
+    $("equipo-ficha").innerHTML = `<div class="ficha"><span class="num">${v}</span><div class="det"><b>${conf.cap} M3</b><span>${conf.base ? "Base " + esc(conf.base) : "&nbsp;"}</span></div></div>`;
   } else if (final || v.length === 4) msg = v ? `El equipo ${v} no está en la flota. Revisa el número.` : "Ingresa el N° de equipo.";
   $("m-eq").textContent = msg;
   marcar($("w-eq"), S.conf ? "ok" : msg ? "err" : "");
@@ -822,42 +895,111 @@ function ahora() {
   const d = new Date();
   return d.toLocaleDateString("es-CL", { day: "2-digit", month: "2-digit", year: "numeric" }) + " " + d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
 }
+let equipoPreparado = "";
 function prepararViaje() {
-  if (S.carga.length !== S.conf.comps.length) S.carga = S.conf.comps.map(() => "");
   $("resumen").innerHTML = `
     <div><span>Conductor</span><b>${esc(S.conductor)}</b></div>
     <div><span>RUT</span><b>${S.rut}</b></div>
     <div><span>Equipo</span><b>${S.equipo} · ${S.conf.cap} M3</b></div>
     <div><span>Fecha y hora</span><b id="reloj">${ahora()}</b></div>`;
-  $("carga-cap").textContent = "Capacidad " + litros(S.conf.comps.reduce((a, b) => a + b, 0));
-  $("comps").innerHTML = S.conf.comps.map((l, i) => `
-    <div class="comp" id="comp-${i}">
-      <div class="comp-head"><span class="n">${i + 1}</span><b>Compartimento ${i + 1}</b><span class="vol">${litros(l)}</span></div>
-      <div class="chips" role="radiogroup" aria-label="Producto del compartimento ${i + 1}">
-        ${PRODUCTOS.map(p => `<button type="button" class="chip" role="radio" aria-checked="${S.carga[i] === p.id}" data-i="${i}" data-p="${p.id}"><b>${p.corto || p.id}</b>${p.corto ? "" : `<small>${p.nombre}</small>`}</button>`).join("")}
-      </div>
-    </div>`).join("");
-  dibujarTanque();
+  if (equipoPreparado === S.equipo) return;
+  equipoPreparado = S.equipo;
+  // Camión de 15 M3: el tracto es el mismo equipo, no se pregunta
+  const propio = S.conf.camion;
+  $("w-tracto").hidden = !!propio;
+  trIn.value = "";
+  $("tracto-ficha").innerHTML = propio ? `<div class="ficha"><span class="num">${S.equipo}</span><div class="det"><b>Mismo equipo</b><span>Camión de 15 M3</span></div></div>` : "";
+  S.tracto = propio ? S.equipo : "";
+  kmIn.value = ""; S.km = 0;
+  marcar($("w-tracto"), ""); marcar($("w-km"), "");
+  $("m-tracto").textContent = ""; $("m-km").textContent = ""; $("km-dif").textContent = "";
+  mostrarUltimoKm();
+  if (propio) consultarTracto(S.equipo);
 }
-function dibujarTanque(animar) {
-  $("tanque").innerHTML = S.conf.comps.map((l, i) => {
-    const p = S.carga[i];
-    return `<div class="seg${animar === i ? " llenar" : ""}" style="flex:${l}" ${p ? `data-p="${p}"` : ""}><span class="t">${i + 1}<small>${p ? (p === "VAC" ? "—" : p) : ""}</small></span></div>`;
-  }).join("");
-  const cargado = S.conf.comps.reduce((a, l, i) => a + (S.carga[i] && S.carga[i] !== "VAC" ? l : 0), 0);
-  $("carga-txt").innerHTML = `Cargado <b>${litros(cargado)}</b>`;
+
+// Último km del tracto al día: se pregunta a la planilla al elegirlo (la copia del celular puede estar atrasada)
+const tractosVistos = {};
+function consultarTracto(t) {
+  if (tractosVistos[t] === "consultando") return;
+  tractosVistos[t] = "consultando";
+  llamarApi({ accion: "tracto", tracto: t })
+    .then(r => {
+      tractosVistos[t] = r;
+      if (r.ok) TRACTOS[t] = { base: r.base || "", km: Number(r.ultimoKm) || 0 };
+    })
+    .catch(() => { delete tractosVistos[t]; })
+    .finally(() => {
+      if (S.conf && S.conf.camion && t === S.equipo) { mostrarUltimoKm(); if (kmIn.value) revisarKm(true); }
+      else if (trIn.value === t) { revisarTracto(true); mostrarUltimoKm(); if (kmIn.value) revisarKm(true); }
+    });
 }
-$("comps").addEventListener("click", e => {
-  const b = e.target.closest(".chip"); if (!b) return;
-  const i = +b.dataset.i;
-  S.carga[i] = b.dataset.p;
-  b.parentElement.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-checked", c === b));
-  $("comp-" + i).classList.remove("error");
-  $("m-comps").textContent = "";
-  dibujarTanque(i);
-  const prod = PRODUCTOS.find(p => p.id === b.dataset.p);
-  guiaP2(b.dataset.p === "VAC" ? `Compartimento ${i + 1} va vacío.` : `Compartimento ${i + 1} con ${prod.nombre.toLowerCase()}.`, "p-" + b.dataset.p);
+
+// Tracto: se escribe igual que el equipo y se revisa contra la hoja Tractos
+const trIn = $("tracto");
+function revisarTracto(final) {
+  if (S.conf && S.conf.camion) return !!TRACTOS[S.equipo];
+  trIn.value = trIn.value.replace(/\D/g, "").slice(0, 4);
+  const v = trIn.value, t = TRACTOS[v], visto = tractosVistos[v];
+  const antes = S.tracto;
+  S.tracto = "";
+  $("tracto-ficha").innerHTML = "";
+  let msg = "";
+  if (visto && visto !== "consultando" && !visto.ok) msg = visto.error || `El tracto ${v} no está en la lista. Revisa el número.`;
+  else if (t && !(EQUIPOS[v] && EQUIPOS[v].camion)) {
+    S.tracto = v;
+    $("tracto-ficha").innerHTML = `<div class="ficha"><span class="num">${v}</span><div class="det"><b>Tracto</b><span>${t.base ? "Base " + esc(t.base) : "&nbsp;"}</span></div></div>`;
+    if (!visto) consultarTracto(v);
+  } else if (visto === "consultando") {
+    $("tracto-ficha").innerHTML = `<div class="ficha"><div class="det"><span>Verificando tracto…</span></div></div>`;
+  } else if (final || v.length === 4) {
+    if (v && !visto) { consultarTracto(v); return revisarTracto(final); }
+    msg = v ? `El tracto ${v} no está en la lista. Revisa el número.` : "Ingresa el N° de tracto.";
+  }
+  $("m-tracto").textContent = msg;
+  marcar($("w-tracto"), S.tracto ? "ok" : msg ? "err" : "");
+  if (S.tracto !== antes) { mostrarUltimoKm(); if (kmIn.value) revisarKm(true); }
+  return !!S.tracto;
+}
+trIn.addEventListener("input", () => {
+  if (revisarTracto(false)) guiaP2(`Tracto ${S.tracto}. Ahora ingresa el kilometraje exacto del tablero.`, "tracto-ok");
 });
+
+// Km del tablero: solo números, con puntos de miles; nunca menor que el último registrado del tracto
+// ni más de 2.000 km por sobre él
+const KM_MAX_SALTO = 2000;
+const kmIn = $("km");
+function mostrarUltimoKm() {
+  const t = TRACTOS[S.tracto];
+  if (!t) { $("ultimo-km").innerHTML = ""; return; }
+  const dig = fmtKm(t.km).split("").map(c => c === "." ? `<i class="sep">.</i>` : `<i>${c}</i>`).join("");
+  $("ultimo-km").innerHTML = `<div class="odo"><span>Último km registrado<b>Tracto ${S.tracto}</b></span><span class="dig" aria-label="${fmtKm(t.km)} km">${dig}</span></div>`;
+}
+function revisarKm(final) {
+  const n = +kmIn.value.replace(/\D/g, "") || 0;
+  const t = TRACTOS[S.tracto];
+  S.km = 0;
+  $("km-dif").textContent = "";
+  let msg = "";
+  if (!n) msg = final ? "Ingresa el km exacto del tablero." : "";
+  else if (!t && S.conf && S.conf.camion) {
+    const visto = tractosVistos[S.equipo];
+    msg = visto && visto.error ? visto.error : visto === "consultando" ? "" : "No se pudo obtener el último km de tu equipo. Revisa tu señal e intenta de nuevo.";
+    if (!visto && final) consultarTracto(S.equipo);
+  }
+  else if (!t) msg = final ? "Primero ingresa tu N° de tracto." : "";
+  else if (n < t.km) msg = final || String(n).length >= String(t.km).length ? `El km no puede ser menor que el último registrado del tracto ${S.tracto} (${fmtKm(t.km)} km). Revisa el tablero.` : "";
+  else if (n - t.km > KM_MAX_SALTO) msg = `Son ${fmtKm(n - t.km)} km más que el último registro (${fmtKm(t.km)} km). El máximo permitido es ${fmtKm(KM_MAX_SALTO)} km. Revisa el tablero.`;
+  else { S.km = n; $("km-dif").textContent = `+${fmtKm(n - t.km)} km desde el último registro`; }
+  $("m-km").textContent = msg;
+  marcar($("w-km"), S.km ? "ok" : msg ? "err" : "");
+  return !!S.km;
+}
+kmIn.addEventListener("input", () => {
+  const d = kmIn.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 7);
+  kmIn.value = d ? fmtKm(+d) : "";
+  revisarKm(false);
+});
+kmIn.addEventListener("change", () => { if (revisarKm(true)) guiaP2("Kilometraje listo.", "km-ok"); });
 
 // Documento
 const docIn = $("doc");
@@ -891,7 +1033,7 @@ function cerrarLista() { lista.hidden = true; combo.classList.remove("abierto");
 function elegir(d) {
   S.destino = d; destIn.value = d; cerrarLista();
   marcar($("w-dest"), "ok"); $("m-dest").textContent = "";
-  guiaP2("Destino seleccionado, listo. Ahora elige qué lleva cada compartimento.", "destino-ok");
+  guiaP2(S.tracto ? "Destino seleccionado, listo. Ahora ingresa el kilometraje exacto del tablero." : "Destino seleccionado, listo. Ahora elige tu tracto.", "destino-ok");
 }
 destIn.addEventListener("focus", abrirLista);
 destIn.addEventListener("input", () => { S.destino = ""; marcar($("w-dest"), ""); abrirLista(); });
@@ -936,15 +1078,8 @@ $("f2").addEventListener("submit", e => {
     $("m-dest").textContent = "Elige un destino de la lista.";
     marcar($("w-dest"), "err"); sacudir($("w-dest")); primero = primero || $("w-dest"); errores.push("destino");
   }
-  const faltan = S.carga.map((p, i) => p ? -1 : i).filter(i => i >= 0);
-  if (faltan.length) {
-    faltan.forEach(i => { $("comp-" + i).classList.add("error"); sacudir($("comp-" + i)); });
-    $("m-comps").textContent = `Elige el producto del compartimento ${faltan.map(i => i + 1).join(", ")}. Si va sin carga, elige VACÍO.`;
-    primero = primero || $("comp-" + faltan[0]); errores.push("compartimentos");
-  } else if (S.carga.every(p => p === "VAC")) {
-    $("m-comps").textContent = "Todos los compartimentos están vacíos. Al menos uno debe llevar producto.";
-    sacudir($("tanque")); primero = primero || $("tanque"); errores.push("carga");
-  }
+  if (!revisarTracto(true)) { sacudir($("w-tracto")); primero = primero || $("w-tracto"); errores.push("tracto"); }
+  if (!revisarKm(true)) { sacudir($("w-km")); primero = primero || $("w-km"); errores.push("km"); }
   const alerta = $("alerta");
   if (errores.length) {
     alerta.hidden = false;
@@ -959,19 +1094,14 @@ $("f2").addEventListener("submit", e => {
 
 // ---------- Pantalla 3: revisión ----------
 function mostrarRevision() {
-  const filas = S.carga.map((p, i) => {
-    const prod = PRODUCTOS.find(x => x.id === p);
-    const nombre = p === "VAC" ? "VACÍO" : `${prod.nombre} (${p})`;
-    return `<div class="fila-c"><i class="sw" data-p="${p}">${i + 1}</i><span class="prod">${nombre}<small>Compartimento ${i + 1}</small></span><b>${litros(S.conf.comps[i])}</b></div>`;
-  }).join("");
   $("recibo").innerHTML = `
     <div><span>Conductor</span><b>${esc(S.conductor)}</b></div>
     <div><span>RUT</span><b>${S.rut}</b></div>
     <div><span>Equipo</span><b>${S.equipo} · ${S.conf.cap} M3</b></div>
+    <div><span>Tracto</span><b>${S.tracto}${S.tracto === S.equipo ? " (mismo equipo)" : ""}</b></div>
+    <div><span>Km del tablero</span><b>${fmtKm(S.km)} km</b></div>
     <div><span>Documento</span><b>${docIn.value}</b></div>
-    <div><span>Destino</span><b>${esc(S.destino)}</b></div>
-    <div class="carga-tit"><span>Carga</span></div>
-    ${filas}`;
+    <div><span>Destino</span><b>${esc(S.destino)}</b></div>`;
   mostrar("p3");
 }
 $("volver2").addEventListener("click", () => mostrar("p2", true));
@@ -983,9 +1113,16 @@ $("enviar").addEventListener("click", async () => {
   alerta.hidden = true;
   try {
     const r = await llamarApi({
-      accion: "viaje", rut: S.rut, equipo: S.equipo, documento: docIn.value, destino: S.destino, carga: S.carga
+      accion: "viaje", rut: S.rut, equipo: S.equipo, tracto: S.tracto, km: S.km, documento: docIn.value, destino: S.destino
     });
-    if (!r.ok) throw Object.assign(new Error(r.error), { deLaPlanilla: true });
+    if (!r.ok) {
+      // Si otro conductor registró antes con el mismo tracto, se trae el último km al día para corregir
+      delete tractosVistos[S.tracto]; consultarTracto(S.tracto);
+      throw Object.assign(new Error(r.error), { deLaPlanilla: true });
+    }
+    if (TRACTOS[S.tracto]) TRACTOS[S.tracto].km = S.km;
+    miViaje = r.id;
+    guardarBase(r.base || S.conf.base);
     $("hora-envio").textContent = "Registrado el " + (r.fecha || ahora());
     mostrar("p4");
   } catch (err) {
@@ -997,10 +1134,11 @@ $("enviar").addEventListener("click", async () => {
   }
 });
 $("cerrar").addEventListener("click", () => {
-  Object.assign(S, { rut: "", conductor: "", equipo: "", conf: null, carga: [], destino: "" });
-  rutIn.value = ""; eqIn.value = ""; docIn.value = ""; destIn.value = "";
-  ["w-rut", "w-eq", "w-doc", "w-dest"].forEach(w => marcar($(w), ""));
-  ["m-rut", "m-eq", "m-doc", "m-dest", "m-comps"].forEach(m => $(m).textContent = "");
+  Object.assign(S, { rut: "", conductor: "", equipo: "", conf: null, destino: "", tracto: "", km: 0 });
+  equipoPreparado = "";
+  rutIn.value = ""; eqIn.value = ""; docIn.value = ""; destIn.value = ""; kmIn.value = "";
+  ["w-rut", "w-eq", "w-doc", "w-dest", "w-tracto", "w-km"].forEach(w => marcar($(w), ""));
+  ["m-rut", "m-eq", "m-doc", "m-dest", "m-tracto", "m-km", "km-dif"].forEach(m => $(m).textContent = "");
   $("conductor-ficha").innerHTML = ""; $("equipo-ficha").innerHTML = "";
   $("doc-cuenta").textContent = "0/10"; $("doc-cuenta").classList.remove("lleno");
   $("alerta").hidden = true; $("alerta-envio").hidden = true;
@@ -1041,18 +1179,63 @@ $("tocar").addEventListener("click", () => {
 // Al abrir, intenta saludar; si el celular bloquea el sonido, se queda la capa "Toca la pantalla"
 hablar("p0");
 
+// ---------- Pantalla 5: viajes de hoy de la base ----------
+// La base sale del último equipo que se ingresó en este celular
+let miViaje = "", baseGuardada = "", origenHoy = "p0";
+try { baseGuardada = localStorage.getItem("base-viajes-stange") || ""; } catch (e) {}
+function guardarBase(b) {
+  baseGuardada = b;
+  try { localStorage.setItem("base-viajes-stange", b); } catch (e) {}
+  mostrarBotonInicio();
+}
+function mostrarBotonInicio() {
+  $("hoy-inicio").hidden = !baseGuardada;
+  $("hoy-inicio-base").textContent = baseGuardada;
+}
+mostrarBotonInicio();
+const baseHoy = () => baseGuardada;
+async function cargarHoy() {
+  $("hoy-base").textContent = "Base " + baseHoy();
+  $("hoy-fecha").textContent = new Date().toLocaleDateString("es-CL", { weekday: "long", day: "numeric", month: "long" });
+  $("hoy-act").textContent = "Actualizando…";
+  try {
+    const r = await llamarApi({ accion: "viajesHoy", base: baseHoy() });
+    const vs = (r.viajes || []).slice().sort((a, b) => b.hora.localeCompare(a.hora));
+    $("hoy-n").textContent = vs.length;
+    $("hoy-n-txt").textContent = vs.length === 1 ? "viaje registrado hoy" : "viajes registrados hoy";
+    $("hoy-lista").innerHTML = vs.length ? vs.map(v => `
+      <li class="${v.id === miViaje ? "mio" : ""}">
+        <span class="hora">${v.hora}</span>
+        <span class="l1"><span class="eq">Equipo ${esc(v.equipo)}</span><span class="cond">${esc(v.conductor)}</span>${v.id === miViaje ? `<span class="tuyo">Tu viaje</span>` : ""}</span>
+        <span class="dest">${esc(v.destino)}</span>
+      </li>`).join("") : `<li class="hoy-vacio">Todavía no hay viajes hoy en esta base.</li>`;
+    $("hoy-act").textContent = "Actualizado a las " + hhmm(new Date());
+  } catch (e) {
+    $("hoy-act").textContent = "Sin conexión. Revisa tu señal y toca actualizar.";
+  }
+}
+function abrirHoy(origen) { origenHoy = origen; mostrar("p5"); cargarHoy(); }
+$("hoy-inicio").addEventListener("click", () => { voz.activada = true; abrirHoy("p0"); });
+$("hoy-final").addEventListener("click", () => abrirHoy("p4"));
+$("volver5").addEventListener("click", () => mostrar(origenHoy, true));
+$("refrescar5").addEventListener("click", cargarHoy);
+
 // Copia de la app en el celular para que abra rápido y sin señal
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 
-// Equipos y destinos vienen de la planilla (hojas "Equipos" y "Destinos").
+// Equipos, tractos y destinos vienen de la planilla (hojas "Equipos", "Tractos" y "Destinos").
 // Se guarda la última versión en el celular para que la app funcione aunque falle la señal al abrir.
 function aplicarConfig(c) {
   if (c && c.equipos && c.equipos.length) {
     Object.keys(EQUIPOS).forEach(k => delete EQUIPOS[k]);
     c.equipos.forEach(e => {
       const litros = e.litros.map(Number).filter(n => n > 0);
-      EQUIPOS[String(e.equipo)] = { cap: Math.round(litros.reduce((a, b) => a + b, 0) / 1000), comps: litros };
+      EQUIPOS[String(e.equipo)] = { cap: Math.round(litros.reduce((a, b) => a + b, 0) / 1000), comps: litros, base: e.base || "", camion: !!e.camion };
     });
+  }
+  if (c && c.tractos) {
+    Object.keys(TRACTOS).forEach(k => delete TRACTOS[k]);
+    c.tractos.forEach(t => TRACTOS[String(t.tracto)] = { base: t.base || "", km: Number(t.ultimoKm) || 0 });
   }
   if (c && c.destinos && c.destinos.length) DESTINOS = c.destinos.slice();
 }
@@ -1060,7 +1243,7 @@ try { aplicarConfig(JSON.parse(localStorage.getItem("config-viajes-stange"))); }
 llamarApi({ accion: "config" }).then(c => {
   if (!c.ok) return;
   aplicarConfig(c);
-  try { localStorage.setItem("config-viajes-stange", JSON.stringify({ equipos: c.equipos, destinos: c.destinos })); } catch (e) {}
+  try { localStorage.setItem("config-viajes-stange", JSON.stringify({ equipos: c.equipos, tractos: c.tractos, destinos: c.destinos })); } catch (e) {}
 }).catch(() => {});
 </script>
 
