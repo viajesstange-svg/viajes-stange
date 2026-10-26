@@ -37,6 +37,7 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a3164">
+<meta name="color-scheme" content="only light">
 <title>Prueba · Ingreso de Viajes</title>
 <!-- Instalar como app en el celular (ícono propio, pantalla completa, sin barra del navegador) -->
 
@@ -85,22 +86,8 @@ img { max-width: 100%; }
   --font-display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
   --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --band: #0b2347; --accent: #e8752c; --accent-press: #f28a45; --on-accent: #ffffff;
-    --bg: #0a111d; --surface: #111a2b; --field: #0d1524; --fg: #e8edf5; --label: #e8edf5; --muted: #94a0b4; --line: #24324a;
-    --ok: #2fcb73; --err: #ff6b6b; --err-soft: #3a1c1e;
-    --p-pd: #7d8592; --p-k: #3f7fea; --p-ka: #8c72e6; --p-b93: #3db56b; --p-b97: #c9365c; --p-vac: #6f727a;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --band: #0b2347; --accent: #e8752c; --accent-press: #f28a45; --on-accent: #ffffff;
-  --bg: #0a111d; --surface: #111a2b; --field: #0d1524; --fg: #e8edf5; --label: #e8edf5; --muted: #94a0b4; --line: #24324a;
-  --ok: #2fcb73; --err: #ff6b6b; --err-soft: #3a1c1e;
-  --p-pd: #7d8592; --p-k: #3f7fea; --p-ka: #8c72e6; --p-b93: #3db56b; --p-b97: #c9365c; --p-vac: #6f727a;
-  color-scheme: dark;
-}
+/* Siempre en colores claros: si el celular está en modo oscuro, el navegador no invierte los colores de la app */
+:root { color-scheme: only light; }
 
 html, body { height: 100%; }
 body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.4; }
