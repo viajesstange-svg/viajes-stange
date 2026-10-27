@@ -403,7 +403,7 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
 </style>
 </head>
 <body>
-<div style="background:#ffd23f;color:#0a3164;text-align:center;font:700 15px Barlow,Arial,sans-serif;padding:8px 12px;line-height:1.35">MODO PRUEBA · Nada se guarda<br><span style="font-weight:500">Usa tu RUT, tu equipo, cualquier tracto y un km entre 100.000 y 102.000</span></div>
+<div style="background:#ffd23f;color:#0a3164;text-align:center;font:700 15px Barlow,Arial,sans-serif;padding:8px 12px;line-height:1.35">MODO PRUEBA · Nada se guarda<br><span style="font-weight:500">Usa tu RUT, tu equipo, cualquier tracto y un km entre 100.000 y 101.500</span></div>
 <div class="app">
 
   <!-- PANTALLA 0: bienvenida -->
@@ -1046,8 +1046,8 @@ trIn.addEventListener("input", () => {
 });
 
 // Km del tablero: solo números, con puntos de miles; nunca menor que el último registrado del tracto
-// ni más de 2.000 km por sobre él
-const KM_MAX_SALTO = 2000;
+// ni más de 1.500 km por sobre él
+const KM_MAX_SALTO = 1500;
 const kmIn = $("km");
 function mostrarUltimoKm() {
   const t = TRACTOS[S.tracto];
