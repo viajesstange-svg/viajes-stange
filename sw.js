@@ -1,7 +1,7 @@
 // Guarda una copia de la app en el celular: abre al instante, incluso con mala señal.
 // Al abrirla muestra la copia guardada y, por detrás, descarga la versión nueva para la próxima vez.
 // Al publicar cambios grandes, subir el número de versión para forzar la actualización.
-const VERSION = "viajes-stange-v13";
+const VERSION = "viajes-stange-v14";
 const ARCHIVOS = ["./", "./index.html", "./manifest.webmanifest", "./icono-192.png", "./icono-512.png", "./icono-180.png"];
 
 self.addEventListener("install", e => {
