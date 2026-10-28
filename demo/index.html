@@ -24,7 +24,7 @@
       viajes.push({ id, hora: hhmm(new Date()), equipo: String(d.equipo), conductor: "Conductor de prueba", destino: d.destino });
       return { ok: true, id, fecha: new Date().toLocaleDateString("es-CL") + " " + hhmm(new Date()), base: "Prueba" };
     }
-    if (d.accion === "viajesHoy") return { ok: true, viajes: viajes.slice() };
+    if (d.accion === "viajesHoy") return { ok: true, viajes: viajes.slice().reverse() };  // como la planilla: más nuevo primero
     return { ok: false, error: "No disponible en modo prueba." };
   };
   const fetchReal = window.fetch;
@@ -1367,7 +1367,9 @@ async function cargarHoy() {
   $("hoy-act").textContent = "Actualizando…";
   try {
     const r = await llamarApi({ accion: "viajesHoy", base: baseHoy() });
-    const vs = (r.viajes || []).slice().sort((a, b) => b.hora.localeCompare(a.hora));
+    // La planilla los manda del más nuevo al más antiguo (turno de 19:00 a 19:00, puede cruzar la medianoche);
+    // aquí se muestran del más antiguo al más nuevo, en el orden en que salieron
+    const vs = (r.viajes || []).slice().reverse();
     $("hoy-n").textContent = vs.length;
     $("hoy-n-txt").textContent = vs.length === 1 ? "viaje registrado hoy" : "viajes registrados hoy";
     $("hoy-lista").innerHTML = vs.length ? vs.map(v => `
