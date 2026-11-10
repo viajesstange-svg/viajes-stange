@@ -240,6 +240,8 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
 .vista img { width: 64px; height: 110px; object-fit: cover; object-position: top; border-radius: 8px; border: 1px solid var(--line); }
 .vista span { font-size: 14px; color: var(--muted); }
 .obs-label { font-size: 16px; }
+.obs-box { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.obs-box[hidden] { display: none; }
 #obs { width: 100%; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); padding: 10px 12px; font: inherit; font-size: 16px; resize: vertical; outline: none; }
 #obs:focus { border-color: var(--accent); }
 .hoy-vacio { color: var(--muted); text-align: center; padding: 24px 8px; border: 1px dashed var(--line); border-radius: 12px; }
@@ -511,8 +513,10 @@ button:focus-visible, input:focus-visible, li:focus-visible { outline: 3px solid
           </label>
           <div id="pantallazo-vista"></div>
           <div class="msg" id="m-pantallazo" aria-live="polite"></div>
+        </div>
+        <div class="obs-box" id="obs-box" hidden>
           <label class="label obs-label" for="obs">Observación <span class="aux">opcional</span></label>
-          <textarea id="obs" rows="3" maxlength="300" placeholder="Ej: salida de carga atrasada 40 minutos"></textarea>
+          <textarea id="obs" rows="3" maxlength="300" placeholder="Ej: viaje combinado / salida de carga atrasada 40 minutos"></textarea>
         </div>
       </div>
 
@@ -1110,19 +1114,20 @@ lista.addEventListener("click", e => { const li = e.target.closest("li[data-i]")
 $("dest-toggle").addEventListener("mousedown", e => e.preventDefault());
 $("dest-toggle").addEventListener("click", () => { if (lista.hidden) { destIn.focus(); abrirLista(); } else cerrarLista(); });
 
-// Tipo de entrega: estándar sigue directo; pre programa pide el pantallazo (obligatorio) y una observación (opcional)
+// Tipo de entrega: los dos tipos permiten una observación (opcional); pre programa además pide el pantallazo (obligatorio)
 function marcarTipo(tipo) {
   S.tipo = tipo;
   document.querySelectorAll(".tipo-op").forEach(b => b.setAttribute("aria-checked", b.dataset.tipo === tipo));
   $("w-tipo").classList.remove("error");
   $("m-tipo").textContent = "";
   $("prep").hidden = tipo !== "Pre programa";
+  $("obs-box").hidden = !tipo;
 }
 $("tipos").addEventListener("click", e => {
   const b = e.target.closest(".tipo-op"); if (!b) return;
   marcarTipo(b.dataset.tipo);
   if (S.tipo === "Pre programa") guiaP2("Pre programa. Sube el pantallazo con el horario de entrega.", "tipo-pre");
-  else guiaP2("Entrega estándar.", "tipo-std");
+  else guiaP2("Entrega estándar. Si el viaje es combinado, escríbelo en observación.", "tipo-std");
 });
 // El pantallazo se achica en el celular antes de enviarlo: sube rápido aunque haya poca señal
 function achicarImagen(archivo) {
@@ -1219,7 +1224,7 @@ $("enviar").addEventListener("click", async () => {
   try {
     const r = await llamarApi({
       accion: "viaje", rut: S.rut, equipo: S.equipo, tracto: S.tracto, km: S.km, documento: docIn.value, destino: S.destino,
-      tipo: S.tipo, observacion: S.tipo === "Pre programa" ? S.obs : "",
+      tipo: S.tipo, observacion: S.obs,
       pantallazo: S.tipo === "Pre programa" ? S.pantallazo.split(",")[1] : ""
     });
     if (!r.ok) {

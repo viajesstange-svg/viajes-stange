@@ -1,7 +1,7 @@
-// Guarda una copia de la app en el celular: abre al instante, incluso con mala señal.
-// Al abrirla muestra la copia guardada y, por detrás, descarga la versión nueva para la próxima vez.
-// Al publicar cambios grandes, subir el número de versión para forzar la actualización.
-const VERSION = "viajes-stange-v15";
+﻿// Guarda una copia de la app en el celular: abre al instante, incluso con mala seÃ±al.
+// Al abrirla muestra la copia guardada y, por detrÃ¡s, descarga la versiÃ³n nueva para la prÃ³xima vez.
+// Al publicar cambios grandes, subir el nÃºmero de versiÃ³n para forzar la actualizaciÃ³n.
+const VERSION = "viajes-stange-v16";
 const ARCHIVOS = ["./", "./index.html", "./manifest.webmanifest", "./icono-192.png", "./icono-512.png", "./icono-180.png"];
 
 self.addEventListener("install", e => {
@@ -16,7 +16,7 @@ self.addEventListener("activate", e => {
 
 self.addEventListener("fetch", e => {
   const pedido = e.request;
-  // Solo los archivos de la app de conductores; la planilla de Google, el panel, la instalación y la prueba pasan directo
+  // Solo los archivos de la app de conductores; la planilla de Google, el panel, la instalaciÃ³n y la prueba pasan directo
   const url = new URL(pedido.url);
   if (pedido.method !== "GET" || url.origin !== location.origin || url.pathname.includes("/oficina") || url.pathname.includes("/instalar") || url.pathname.includes("/demo")) return;
   e.respondWith(caches.open(VERSION).then(async cache => {
